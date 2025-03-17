@@ -219,7 +219,7 @@ class BasicOutlineMapChart extends Chart {
       feature: {
         myResetZoom: {
           show: true,
-          title: context?.translator?.('common.reset'),
+          title: '重置',
           onclick: () => {
             this.geoConfig = {
               center: undefined,
@@ -235,7 +235,7 @@ class BasicOutlineMapChart extends Chart {
         },
         myZoomIn: {
           show: true,
-          title: context?.translator?.('common.zoomIn'),
+          title: '放大',
           onclick: () => {
             this.geoConfig = {
               center: this.geoConfig.center,
@@ -251,7 +251,7 @@ class BasicOutlineMapChart extends Chart {
         },
         myZoomOut: {
           show: true,
-          title: context?.translator?.('common.zoomOut'),
+          title: '缩小',
           onclick: () => {
             this.geoConfig = {
               center: this.geoConfig.center,
@@ -296,6 +296,7 @@ class BasicOutlineMapChart extends Chart {
       ['map'],
       ['level', 'areaColor', 'areaEmphasisColor', 'focusArea', 'borderStyle'],
     );
+    console.log('mapLevelName', mapLevelName);
     return {
       map: mapLevelName,
       roam: 'move',
@@ -343,6 +344,7 @@ class BasicOutlineMapChart extends Chart {
   ): GeoSeries[] {
     const [show] = getStyles(styleConfigs, ['visualMap'], ['show']);
     const [mapLevelName] = getStyles(styleConfigs, ['map'], ['level']);
+    console.log('mapLevelName', mapLevelName);
     return [
       {
         type: 'map',

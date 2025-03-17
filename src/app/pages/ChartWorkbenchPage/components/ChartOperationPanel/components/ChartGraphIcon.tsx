@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+/* eslint-disable */
 import { Tooltip } from 'antd';
 import { IW } from 'app/components';
 import { ChartDataSectionType } from 'app/constants';
@@ -102,7 +102,7 @@ const ChartGraphIcon: FC<{
       title={
         <>
           {t(chart?.meta?.name!, true)}
-          {renderChartRequirements(chart?.meta?.requirements)}
+          {/* {renderChartRequirements(chart?.meta?.requirements)} */}
         </>
       }
     >

@@ -22,7 +22,7 @@ import { IChart } from 'app/types/Chart';
 import { ChartConfig, SelectedItem } from 'app/types/ChartConfig';
 import ChartDataSetDTO from 'app/types/ChartDataSet';
 import ChartDataView from 'app/types/ChartDataView';
-import { FC, memo, useMemo } from 'react';
+import { FC, memo, useMemo, useState } from 'react';
 import styled from 'styled-components/macro';
 import { SPACE_MD } from 'styles/StyleConstants';
 import ChartGraphPanel from './ChartGraphPanel';
@@ -56,6 +56,10 @@ const ChartPresentWrapper: FC<{
     onCreateDownloadDataTask,
     selectedItems,
   }) => {
+    // console.log('onChartChange', onChartChange);
+
+    const [needLoading, setNeedLoading] = useState<any>(false);
+
     const { ref: ChartGraphPanelRef } = useResizeObserver<any>({
       refreshMode: 'debounce',
       refreshRate: 500,
@@ -72,7 +76,12 @@ const ChartPresentWrapper: FC<{
             <ChartGraphPanel
               chart={chart}
               chartConfig={chartConfig}
-              onChartChange={onChartChange}
+              onChartChange={(e: any) => {
+                setNeedLoading(false);
+                // DO: kele change 支持图标来回切换时，自动更新
+                onRefreshDataset && onRefreshDataset();
+                onChartChange(e);
+              }}
             />
           </div>
           <ChartPresentPanel
@@ -85,6 +94,7 @@ const ChartPresentWrapper: FC<{
             chart={chart}
             dataset={dataset}
             expensiveQuery={expensiveQuery}
+            needLoading={needLoading}
             allowQuery={allowQuery}
             chartConfig={chartConfig}
             onRefreshDataset={onRefreshDataset}

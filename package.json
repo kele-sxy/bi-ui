@@ -16,7 +16,8 @@
   "scripts": {
     "bootstrap": "npm install --legacy-peer-deps",
     "start": "craco start",
-    "build": "cross-env GENERATE_SOURCEMAP=false PUBLIC_URL=/gaia/v1/bi/ craco build",
+    "build": "cross-env GENERATE_SOURCEMAP=false PUBLIC_URL=./ craco build",
+    "build-glite": "cross-env GENERATE_SOURCEMAP=false PUBLIC_URL=/bi/ craco build",
     "build:task": "rollup -c",
     "build:all": "npm run build:theme && npm run build:task && npm run build",
     "build:theme": "node scripts/extractAntdTheme",
@@ -29,6 +30,7 @@
     "lint:fix": "npm run eslint --fix src",
     "lint:css": "npx stylelint 'src/**/*.css'",
     "lint:style": "npx stylelint 'src/**/*.{js,ts,jsx,tsx}'",
+    "py": "prettier --write src",
     "prettify": "prettier --write src",
     "prepare": "cd .. && husky install frontend/.husky",
     "eject": "react-scripts eject",

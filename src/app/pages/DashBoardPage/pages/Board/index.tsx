@@ -38,6 +38,7 @@ import { BoardState, VizRenderMode } from './slice/types';
 
 export interface BoardProps {
   id: string;
+  extraConfig?: any;
   renderMode: VizRenderMode;
   hideTitle?: boolean;
   fetchData?: boolean;
@@ -52,6 +53,7 @@ export interface BoardProps {
 export const Board: FC<BoardProps> = memo(
   ({
     id,
+    extraConfig,
     hideTitle,
     fetchData = true,
     renderMode,
@@ -152,6 +154,7 @@ export const Board: FC<BoardProps> = memo(
       if (boardId && fetchData) {
         dispatch(
           fetchBoardDetail({
+            extraConfig,
             dashboardRelId: boardId,
             filterSearchParams: searchParams,
           }),
@@ -163,7 +166,7 @@ export const Board: FC<BoardProps> = memo(
         dispatch(boardActions.clearBoardStateById(boardId));
         boardDrillManager.clearMapByBoardId(boardId);
       };
-    }, [boardId, dispatch, fetchData, searchParams]);
+    }, [boardId, dispatch, fetchData, searchParams, extraConfig]);
 
     return (
       <Wrapper ref={ref} className="dashboard-box">

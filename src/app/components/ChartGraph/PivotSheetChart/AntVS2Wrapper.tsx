@@ -58,7 +58,16 @@ const AntVS2Wrapper: FC<AndvS2Config> = memo(
       <StyledAntVS2Wrapper
         sheetType="pivot"
         dataCfg={dataCfg}
-        options={options}
+        // kele 隐藏
+        options={{
+          ...options,
+          tooltip: {
+            showTooltip: false,
+            row: {
+              showTooltip: false,
+            },
+          },
+        }}
         themeCfg={{ theme, palette }}
         onCollapseRowsAll={onCollapseRowsAll}
         onRowCellCollapseTreeRows={onRowCellCollapseTreeRows}

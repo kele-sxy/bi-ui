@@ -91,14 +91,20 @@ export const getBoardDetail = createAsyncThunk<
 export const fetchBoardDetail = createAsyncThunk<
   null,
   {
+    extraConfig?: any;
     dashboardRelId: string;
     filterSearchParams?: FilterSearchParams;
   }
 >('board/fetchBoardDetail', async (params, { dispatch, rejectWithValue }) => {
+  console.log('params !!!!', params);
+
   let response;
   if (BE_MODE) {
     console.log('viz/dashboards 1');
-    response = await fetchBoardDetailFromBe(params?.dashboardRelId);
+    response = await fetchBoardDetailFromBe({
+      ...params?.extraConfig,
+      id: params?.dashboardRelId,
+    });
   } else {
     response = await request2<ServerDashboard>(
       `/viz/dashboards/${params?.dashboardRelId}`,
@@ -178,11 +184,16 @@ export const fetchBoardDetailInShare = createAsyncThunk<
 );
 export const renderedWidgetAsync = createAsyncThunk<
   null,
-  { boardId: string; widgetId: string; renderMode?: VizRenderMode },
+  {
+    boardId: string;
+    widgetId: string;
+    renderMode?: VizRenderMode;
+    index?: number;
+  },
   { state: { board: BoardState } }
 >(
   'board/renderedWidgetAsync',
-  async ({ boardId, widgetId, renderMode }, { getState, dispatch }) => {
+  async ({ boardId, widgetId, renderMode, index }, { getState, dispatch }) => {
     const widgetMapMap = selectBoardWidgetMap(getState());
     const widgetMap = widgetMapMap?.[boardId];
     const curWidget = widgetMap?.[widgetId];
@@ -191,7 +202,7 @@ export const renderedWidgetAsync = createAsyncThunk<
     dispatch(boardActions.renderedWidgets({ boardId, widgetIds: [widgetId] }));
     // 2 widget getData
     dispatch(
-      getWidgetData({ boardId: boardId, widget: curWidget, renderMode }),
+      getWidgetData({ boardId: boardId, widget: curWidget, renderMode, index }),
     );
     return null;
   },
@@ -204,18 +215,25 @@ export const getWidgetData = createAsyncThunk<
     widget: Widget;
     renderMode: VizRenderMode | undefined;
     option?: getDataOption;
+    index?: number;
   },
   { state: RootState }
 >(
   'board/getWidgetData',
-  ({ widget, renderMode, option }, { getState, dispatch }) => {
+  ({ widget, renderMode, option, index }, { getState, dispatch }) => {
     const boardId = widget.dashboardId;
     dispatch(boardActions.renderedWidgets({ boardId, widgetIds: [widget.id] }));
     const widgetId = widget.id;
     switch (widget.config.type) {
       case 'chart':
         dispatch(
-          getChartWidgetDataAsync({ boardId, widgetId, renderMode, option }),
+          getChartWidgetDataAsync({
+            boardId,
+            widgetId,
+            renderMode,
+            option,
+            index,
+          }),
         );
         return null;
       case 'controller':
@@ -359,11 +377,17 @@ export const getChartWidgetDataAsync = createAsyncThunk<
     widgetId: string;
     renderMode: VizRenderMode | undefined;
     option?: getDataOption;
+    index?: number;
   },
   { state: RootState }
 >(
   'board/getChartWidgetDataAsync',
-  async ({ boardId, widgetId, renderMode, option }, { getState, dispatch }) => {
+  async (
+    { boardId, widgetId, renderMode, option, index },
+    { getState, dispatch },
+  ) => {
+    console.log('widgetId', widgetId, index);
+
     dispatch(boardActions.renderedWidgets({ boardId, widgetIds: [widgetId] }));
     const boardState = getState() as { board: BoardState };
 
@@ -401,7 +425,32 @@ export const getChartWidgetDataAsync = createAsyncThunk<
       if (renderMode === 'read') {
         let response;
         if (BE_MODE) {
-          response = await fetchDataSetActionFromBe(requestParams);
+          // 预览模式
+
+          // 方案在待定，目前是useParams,和useMatchParams 暂时无法取到
+          const curRouterHash = window.location.hash;
+          const getParmas = (curHash: any) => {
+            // '#/organizations/ecac2714a20d4915bdbaa7daef89fd53/boardDetail/4/%7B%22url%22%3A%22%2Fedge%2Fmng%2Fapi%2FdataServer%2Fv2%2Fdetail%22%2C%22params%22%3A%7B%22serviceId%22%3A%227b5ed0fcb3f54ff48d49216a93fa7258%22%7D%2C%22targetChain%22%3A%22extraMap.fedBoardDTO%22%7D?hideNav=true'
+            const arr = curHash.split('/');
+            let config = {};
+            if (!!arr[5]) {
+              const extraConfig = arr[5]?.split('?')?.[0];
+              config = JSON.parse(decodeURIComponent(extraConfig));
+            }
+            return config;
+          };
+
+          const resParams: any = getParmas(curRouterHash);
+
+          console.log('config kkkkk', requestParams);
+
+          console.log('change 1');
+
+          // todo 更换
+          response = await fetchDataSetActionFromBe({
+            ...requestParams,
+            ...resParams,
+          });
         } else {
           response = await request2<WidgetData>({
             method: 'POST',

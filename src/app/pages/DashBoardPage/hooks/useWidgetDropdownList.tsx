@@ -19,14 +19,14 @@ import {
   BranchesOutlined,
   CloseCircleOutlined,
   DeleteOutlined,
-  EditOutlined,
+  // EditOutlined,
   FullscreenOutlined,
-  GroupOutlined,
+  // GroupOutlined,
   InfoOutlined,
   LinkOutlined,
   LockOutlined,
-  SyncOutlined,
-  UngroupOutlined,
+  // SyncOutlined,
+  // UngroupOutlined,
   UnlockOutlined,
 } from '@ant-design/icons';
 import { VizRenderMode } from '../pages/Board/slice/types';
@@ -38,21 +38,21 @@ export const useWidgetDropdownList = (
 ) => {
   // const t = useI18NPrefix(`viz.widget.action`);
   const allWidgetActionList: WidgetActionListItem<widgetActionType>[] = [
-    {
-      key: 'refresh',
-      label: 'refresh',
-      icon: <SyncOutlined />,
-    },
+    // {
+    //   key: 'refresh',
+    //   label: 'refresh',
+    //   icon: <SyncOutlined />,
+    // },
     {
       key: 'fullScreen',
       label: 'fullScreen',
       icon: <FullscreenOutlined />,
     },
-    {
-      key: 'edit',
-      label: 'edit',
-      icon: <EditOutlined />,
-    },
+    // {
+    //   key: 'edit',
+    //   label: 'edit',
+    //   icon: <EditOutlined />,
+    // },
     {
       key: 'delete',
       label: 'delete',
@@ -99,16 +99,16 @@ export const useWidgetDropdownList = (
       icon: <CloseCircleOutlined />,
       danger: true,
     },
-    {
-      key: 'group',
-      label: 'group',
-      icon: <GroupOutlined />,
-    },
-    {
-      key: 'unGroup',
-      label: 'unGroup',
-      icon: <UngroupOutlined />,
-    },
+    // {
+    //   key: 'group',
+    //   label: 'group',
+    //   icon: <GroupOutlined />,
+    // },
+    // {
+    //   key: 'unGroup',
+    //   label: 'unGroup',
+    //   icon: <UngroupOutlined />,
+    // },
   ];
   const widgetDropdownList = allWidgetActionList
     .map(item => {

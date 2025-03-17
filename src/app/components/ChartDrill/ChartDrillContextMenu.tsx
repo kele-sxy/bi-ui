@@ -15,8 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import { CheckOutlined } from '@ant-design/icons';
+/* eslint-diasble */
 import { Dropdown, Menu } from 'antd';
 import {
   ChartDataSectionType,
@@ -32,11 +31,9 @@ import { ChartConfig, ChartDataSectionField } from 'app/types/ChartConfig';
 import { ChartDataViewMeta } from 'app/types/ChartDataViewMeta';
 import { getRuntimeDateLevelFields } from 'app/utils/chartHelper';
 import { updateBy } from 'app/utils/mutation';
-import classnames from 'classnames';
 import { DATARTSEPERATOR } from 'globalConstants';
 import { FC, memo, useCallback, useContext, useMemo } from 'react';
 import styled from 'styled-components/macro';
-import { FONT_WEIGHT_MEDIUM, SPACE_SM } from 'styles/StyleConstants';
 import { isEmpty } from 'utils/object';
 import { InteractionMouseEvent } from '../FormGenerator/constants';
 
@@ -112,22 +109,22 @@ const ChartDrillContextMenu: FC<{
     [chartConfig?.datas, onDateLevelChange],
   );
 
-  const selectDrillStatusMenu = useMemo(() => {
-    return (
-      <Menu.Item key="selectDrillStatus">
-        <StyledMenuSwitch
-          className={classnames({ on: !!drillOption?.isSelectedDrill })}
-        >
-          <p>
-            {drillOption?.isSelectedDrill
-              ? t('selectDrillOn')
-              : t('selectDrillOff')}
-          </p>
-          <CheckOutlined className="icon" />
-        </StyledMenuSwitch>
-      </Menu.Item>
-    );
-  }, [drillOption?.isSelectedDrill, t]);
+  // const selectDrillStatusMenu = useMemo(() => {
+  //   return (
+  //     <Menu.Item key="selectDrillStatus">
+  //       <StyledMenuSwitch
+  //         className={classnames({ on: !!drillOption?.isSelectedDrill })}
+  //       >
+  //         <p>
+  //           {drillOption?.isSelectedDrill
+  //             ? t('selectDrillOn')
+  //             : t('selectDrillOff')}
+  //         </p>
+  //         <CheckOutlined className="icon" />
+  //       </StyledMenuSwitch>
+  //     </Menu.Item>
+  //   );
+  // }, [drillOption?.isSelectedDrill, t]);
 
   const drillThroughRules = useMemo(() => {
     return drillThroughSetting?.rules?.filter(
@@ -139,11 +136,30 @@ const ChartDrillContextMenu: FC<{
     v => v.drillContextMenuVisible,
   ).length;
 
+  // pufa todo
   const enableContextMenu =
     (menuVisible && drillOption?.isDrillable) ||
-    runtimeDateLevelFields?.length ||
+    // // runtimeDateLevelFields?.length ||
     hasDrillThroughSetting ||
     hasViewDetailSetting;
+
+  let count = 0;
+
+  if (onDrillThroughChange && hasDrillThroughSetting) {
+    ++count;
+  }
+  if (onCrossFilteringChange && hasCrossFiltering) {
+    ++count;
+  }
+  if (
+    drillOption &&
+    drillOption?.mode !== DrillMode.Drill &&
+    !drillOption?.isBottomLevel
+  ) {
+    ++count;
+  }
+
+  console.log('count !!!', count);
 
   const contextMenu = useMemo(() => {
     return (
@@ -187,23 +203,23 @@ const ChartDrillContextMenu: FC<{
         {onViewDataChange && hasViewDetailSetting && (
           <Menu.Item key={'viewData'}>{t('viewData')}</Menu.Item>
         )}
-        {drillOption && drillOption?.getCurrentDrillLevel() > 0 && (
+        {/* {drillOption && drillOption?.getCurrentDrillLevel() > 0 && (
           <Menu.Item key={'rollUp'}>{t('rollUp')}</Menu.Item>
-        )}
-        {drillOption &&
+        )} */}
+        {/* {drillOption &&
           drillOption?.mode !== DrillMode.Expand &&
           !drillOption?.isBottomLevel && (
             <Menu.Item key={DrillMode.Drill}>{t('showNextLevel')}</Menu.Item>
-          )}
+          )} */}
         {drillOption &&
           drillOption?.mode !== DrillMode.Drill &&
           !drillOption?.isBottomLevel && (
             <Menu.Item key={DrillMode.Expand}>{t('expandNextLevel')}</Menu.Item>
           )}
-        {drillOption &&
+        {/* {drillOption &&
           drillOption?.mode !== DrillMode.Expand &&
           drillOption?.isDrillable &&
-          selectDrillStatusMenu}
+          selectDrillStatusMenu} */}
         {runtimeDateLevelFields
           ?.filter(
             f =>
@@ -237,7 +253,7 @@ const ChartDrillContextMenu: FC<{
     onViewDataChange,
     hasViewDetailSetting,
     drillOption,
-    selectDrillStatusMenu,
+    // selectDrillStatusMenu,
     runtimeDateLevelFields,
     onDrillOptionChange,
     availableSourceFunctions,
@@ -247,14 +263,18 @@ const ChartDrillContextMenu: FC<{
 
   return (
     <StyledChartDrill className="chart-drill-menu-container">
-      <Dropdown
-        disabled={!enableContextMenu}
-        overlay={contextMenu}
-        destroyPopupOnHide={true}
-        trigger={['contextMenu']}
-      >
+      {!!count ? (
+        <Dropdown
+          disabled={!enableContextMenu}
+          overlay={contextMenu}
+          destroyPopupOnHide={true}
+          trigger={['contextMenu']}
+        >
+          <div style={{ height: '100%' }}>{children}</div>
+        </Dropdown>
+      ) : (
         <div style={{ height: '100%' }}>{children}</div>
-      </Dropdown>
+      )}
     </StyledChartDrill>
   );
 });
@@ -268,30 +288,4 @@ const StyledChartDrill = styled.div`
 
 const StyledChartDrillMenu = styled(Menu)`
   min-width: 200px;
-`;
-
-const StyledMenuSwitch = styled.div`
-  display: flex;
-  align-items: center;
-
-  p {
-    flex: 1;
-  }
-
-  .icon {
-    display: none;
-  }
-
-  &.on {
-    p {
-      font-weight: ${FONT_WEIGHT_MEDIUM};
-    }
-
-    .icon {
-      display: block;
-      flex-shrink: 0;
-      padding-left: ${SPACE_SM};
-      color: ${p => p.theme.success};
-    }
-  }
 `;

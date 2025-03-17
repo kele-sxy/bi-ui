@@ -74,7 +74,7 @@ export interface ChartMouseEventParams {
   // 传入的原始数据项
   data?: ChartsEventData;
   // sankey、graph 等图表同时含有 nodeData 和 edgeData 两种 data，
-  // dataType 的值会是 'node' 或者 'edge'，表示当前点击在 node 还是 edge 上。
+  // dataType 的值会是 'node' 或者 'data-serving'，表示当前点击在 node 还是 data-serving 上。
   // 其他大部分图表中只有一种 data，dataType 无意义。
   dataType?: string;
   // 传入的数据值
@@ -133,6 +133,8 @@ export interface IChart extends IChartLifecycle {
   dependency: string[];
   isISOContainer: boolean | string;
   useIFrame?: boolean;
+  beStatus?: string | undefined;
+  isDeleted?: number | undefined;
 
   set state(state: ChartStatus);
   get state();

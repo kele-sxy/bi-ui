@@ -12,8 +12,7 @@ const {
   POSTCSS_MODES,
 } = require('@craco/craco');
 
-const rewireEntries = [
-  {
+const rewireEntries = [{
     name: 'shareChart',
     entry: path.resolve(__dirname, './src/shareChart.entry.ts'),
     outPath: 'shareChart.html',
@@ -44,10 +43,15 @@ module.exports = {
     alias: {},
     plugins: [
       new WebpackBar(),
-      new MonacoWebpackPlugin({ languages: [''] }),
+      new MonacoWebpackPlugin({
+        languages: ['']
+      }),
       // new BundleAnalyzerPlugin(),
     ],
-    configure: (webpackConfig, { env, paths }) => {
+    configure: (webpackConfig, {
+      env,
+      paths
+    }) => {
       // paths.appPath='public'
       paths.appBuild = 'dist'; // 配合输出打包修改文件目录
       // webpackConfig中可以解构出你想要的参数比如mode、devtool、entry等等，更多信息请查看webpackConfig.json文件
@@ -61,7 +65,7 @@ module.exports = {
           chunkFilename: 'static/js/[name].[contenthash:8].js',
         },
         path: path.resolve(__dirname, 'dist'), // 修改输出文件目录
-        publicPath: process.env.NODE_ENV === 'development' ? '/' : '/gaia/v1/bi/',
+        publicPath: process.env.NODE_ENV === 'development' ? '/' : './',
       };
       /**
        * webpack split chunks
@@ -155,9 +159,8 @@ module.exports = {
 
       // If there is only one entry file then it should not be necessary for the rest of the entries
       const necessaryEntry =
-        webpackConfig.entry.length === 1
-          ? []
-          : webpackConfig.entry.filter(file => !appIndexes.includes(file));
+        webpackConfig.entry.length === 1 ? [] :
+        webpackConfig.entry.filter(file => !appIndexes.includes(file));
       const multipleEntry = {};
       multipleEntry[defaultEntryName] = webpackConfig.entry;
 
@@ -189,7 +192,12 @@ module.exports = {
     },
   },
   jest: {
-    configure: (jestConfig, { env, paths, resolve, rootDir }) => {
+    configure: (jestConfig, {
+      env,
+      paths,
+      resolve,
+      rootDir
+    }) => {
       return Object.assign(jestConfig, {
         setupFiles: ['jest-canvas-mock'],
       });
@@ -218,13 +226,15 @@ module.exports = {
       },
       '/gaia/v1/bi/api/v1': {
         changeOrigin: true,
-        pathRewrite: { '^/gaia/v1/bi': '' },
+        pathRewrite: {
+          '^/gaia/v1/bi': '',
+        },
         target: 'http://report.k8s.trustbe.net/',
       },
-      '/gaia/v1/edge': {
+      '/gaia/v1/dataServing': {
         changeOrigin: true,
-        // pathRewrite: { '^/gaia/v1/edge': '' },
-        target: 'http://gaia-1.5.4.lanxiang.com/',
+        // pathRewrite: { '^/gaia/v1/data-serving': '' },
+        target: 'http://gaia-1.5.5.lanxiang.com/',
       },
       '/resources': {
         changeOrigin: true,
@@ -232,11 +242,22 @@ module.exports = {
       },
     },
     historyApiFallback: {
-      rewrites: [
-        { from: /^\/$/, to: '/index.html' },
-        { from: /^\/shareChart\/\w/, to: '/shareChart.html' },
-        { from: /^\/shareDashboard\/\w/, to: '/shareDashboard.html' },
-        { from: /^\/shareStoryPlayer\/\w/, to: '/shareStoryPlayer.html' },
+      rewrites: [{
+          from: /^\/$/,
+          to: '/index.html'
+        },
+        {
+          from: /^\/shareChart\/\w/,
+          to: '/shareChart.html'
+        },
+        {
+          from: /^\/shareDashboard\/\w/,
+          to: '/shareDashboard.html'
+        },
+        {
+          from: /^\/shareStoryPlayer\/\w/,
+          to: '/shareStoryPlayer.html'
+        },
       ],
     },
   },

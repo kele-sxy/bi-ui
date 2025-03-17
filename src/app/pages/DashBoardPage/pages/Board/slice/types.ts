@@ -382,6 +382,8 @@ export interface DataChart {
   viewId: string;
   view?: any;
   status: any;
+  beStatus: any; // TODO: kele
+  isDeleted: any; // 1 TODO: kele
 }
 export interface DataChartConfig {
   aggregation: boolean | undefined;

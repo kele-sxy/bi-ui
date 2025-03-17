@@ -37,7 +37,7 @@ export enum StorageKeys {
 }
 
 export const BASE_API_URL = '/gaia/v1/bi/api/v1';
-export const BASE_RESOURCE_URL = '/';
+export const BASE_RESOURCE_URL = './';
 // 1 hour
 export const DEFAULT_AUTHORIZATION_TOKEN_EXPIRATION = 1000 * 60 * 60;
 

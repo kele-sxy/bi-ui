@@ -43,11 +43,11 @@ export const ChartWidgetDropdown: React.FC<{
       icon: '',
       type: 'select',
     },
-    {
-      name: t('createDataChartInBoard'),
-      icon: '',
-      type: 'create',
-    },
+    // {
+    //   name: t('createDataChartInBoard'),
+    //   icon: '',
+    //   type: 'create',
+    // },
   ];
 
   const chartWidgetItems = (

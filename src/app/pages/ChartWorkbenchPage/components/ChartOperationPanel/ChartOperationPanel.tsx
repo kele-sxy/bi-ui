@@ -83,6 +83,7 @@ const ChartOperationPanel: FC<{
           />
         );
       }
+      // kele: 转圈的地方
       if (component === LayoutComponentType.PRESENT) {
         return (
           <ChartPresentWrapper

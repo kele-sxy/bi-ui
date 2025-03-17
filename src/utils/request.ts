@@ -33,7 +33,8 @@ export const instance = axios.create({
 
 instance.interceptors.request.use(config => {
   const token = getToken();
-  if (token) {
+  // Authorization 支持自定义传入
+  if (!config?.headers?.Authorization && token) {
     config.headers.Authorization = token;
   }
   return config;
@@ -49,10 +50,10 @@ instance.interceptors.response.use(response => {
   if (
     BE_MODE &&
     response.status === 200 &&
-    response.config.url?.startsWith('/edge') &&
+    response.config.url?.startsWith('/dataServing/data/serving') &&
     response.data?.code !== EDGE_RET_OK
   ) {
-    console.log(response.data);
+    message.warning(response.data?.message || '请联系管理员');
     return Promise.reject(response.data?.message || '出错了');
   }
   return response;

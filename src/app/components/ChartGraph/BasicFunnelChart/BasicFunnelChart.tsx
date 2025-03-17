@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+/* eslint-disable */
 import { ChartDataSectionType } from 'app/constants';
 import Chart from 'app/models/Chart';
 import { ChartDrillOption } from 'app/models/ChartDrillOption';
@@ -216,10 +217,16 @@ class BasicFunnelChart extends Chart {
           'percentage',
         ],
       );
+    console.log('arrival', arrival);
+
+    console.log('position', position);
+
+    // debugger
+    // console.log('show, position, font, metric, conversion, arrival, percentage', show, position, font, metric, conversion, arrival, percentage);
 
     return {
       show,
-      position,
+      position: 'inside', // pufa todo
       ...font,
       formatter: params => {
         const { name, value, percent, data } = params;
@@ -231,9 +238,9 @@ class BasicFunnelChart extends Chart {
         if (conversion && !isEmpty(data.conversion)) {
           labels.push(`转化率: ${data.conversion}%`);
         }
-        if (arrival && !isEmpty(data.arrival)) {
-          labels.push(`到达率: ${data.arrival}%`);
-        }
+        // if (arrival && !isEmpty(data.arrival)) {
+        //   labels.push(`到达率: ${data.arrival}%`);
+        // }
         if (percentage) {
           labels.push(`百分比: ${percent}%`);
         }
@@ -280,7 +287,7 @@ class BasicFunnelChart extends Chart {
 
     return {
       ...positions,
-      height: height || null,
+      itemHeight: height || null,
       show,
       type,
       orient,
@@ -456,9 +463,9 @@ class BasicFunnelChart extends Chart {
         if (data.conversion) {
           tooltips.push(`转化率: ${data.conversion}%`);
         }
-        if (data.arrival) {
-          tooltips.push(`到达率: ${data.arrival}%`);
-        }
+        // if (data.arrival) {
+        //   tooltips.push(`到达率: ${data.arrival}%`);
+        // }
         return tooltips.join('<br/>');
       },
     };

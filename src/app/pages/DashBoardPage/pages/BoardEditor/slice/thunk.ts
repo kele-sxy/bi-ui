@@ -108,7 +108,7 @@ export const fetchEditBoardDetail = createAsyncThunk<
     let response;
     if (BE_MODE) {
       console.log('viz/dashboards 2');
-      response = await fetchBoardDetailFromBe(dashboardId);
+      response = await fetchBoardDetailFromBe({ params: { id: dashboardId } });
     } else {
       response = await request2<ServerDashboard>(
         `/viz/dashboards/${dashboardId}`,
@@ -668,7 +668,7 @@ export const getEditChartWidgetDataAsync = createAsyncThunk<
     await dispatch(
       editWidgetInfoActions.changePageInfo({
         widgetId,
-        pageInfo: data.pageInfo,
+        pageInfo: data?.pageInfo,
       }),
     );
     await dispatch(

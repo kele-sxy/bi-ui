@@ -729,7 +729,7 @@ class BasicBarChart extends Chart implements IChartLifecycle {
       ...positions,
       show,
       type,
-      height: height || null,
+      itemHeight: height || null,
       orient,
       selected,
       data: seriesNames,

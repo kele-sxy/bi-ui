@@ -30,14 +30,13 @@ import {
   useHistory,
   useRouteMatch,
 } from 'react-router';
-import { useLocation } from 'react-router-dom';
 import styled from 'styled-components/macro';
 import { NotFoundPage } from '../NotFoundPage';
 import { StoryEditor } from '../StoryBoardPage/Editor';
 import { StoryPlayer } from '../StoryBoardPage/Player';
 import { AccessRoute } from './AccessRoute';
 import { Background } from './Background';
-import { Navbar } from './Navbar';
+// import { Navbar } from './Navbar';
 import { ConfirmInvitePage } from './pages/ConfirmInvitePage';
 import { MemberPage } from './pages/MemberPage';
 import { OrgSettingPage } from './pages/OrgSettingPage';
@@ -70,8 +69,6 @@ export function MainPage() {
   const { actions: viewActions } = useViewSlice();
   const dispatch = useDispatch();
   // qingyang add:用于页面内嵌时隐藏侧边栏
-  const pageSearch = new URLSearchParams(useLocation().search);
-  const hideNav = pageSearch.get('hideNav') === 'true' || false;
 
   const organizationMatch = useRouteMatch<MainPageRouteParams>(
     '/organizations/:orgId',
@@ -125,12 +122,15 @@ export function MainPage() {
     <AppContainer>
       <Background />
       {/* qingyang modified */}
-      {!hideNav && <Navbar />}
       {orgId && (
         <Switch>
           {/* qingyang add start */}
           <Route
-            path="/organizations/:orgId/boardDetail/:vizId"
+            path="/organizations/:orgId/boardDetail/:vizId/:extraConfig/"
+            render={() => <BoardPage />}
+          />
+          <Route
+            path="/organizations/:orgId/boardDetail/:vizId/"
             render={() => <BoardPage />}
           />
           <Route

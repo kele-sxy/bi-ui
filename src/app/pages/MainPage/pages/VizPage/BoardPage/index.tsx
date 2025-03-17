@@ -9,6 +9,7 @@ import { useVizSlice } from '../slice';
 interface RouteParams {
   orgId: string;
   vizId: string;
+  extraConfig: string;
 }
 
 // qingyang add
@@ -19,12 +20,42 @@ export const BoardPage = memo(() => {
   useBoardSlice();
   useEditBoardSlice();
   useStoryBoardSlice();
-  const paramsMatch = useRouteMatch<RouteParams>(
-    '/organizations/:orgId/boardDetail/:vizId',
+
+  // 预览模式
+  const paramsMatchMore = useRouteMatch<RouteParams>(
+    '/organizations/:orgId/boardDetail/:vizId/:extraConfig/',
   );
-  const { vizId = '' } = paramsMatch?.params || {};
+
+  // 普通模式
+  const paramsMatch = useRouteMatch<RouteParams>(
+    '/organizations/:orgId/boardDetail/:vizId/',
+  );
+
+  // 是否是预览模式
+  const hasMore = !!paramsMatchMore; // 是否能匹配到/organizations/:orgId/boardDetail/:vizId/:extraConfig/ => 对外预览模式
+
+  // 初始化值
+  let vizId: any = '';
+  let extraConfig: any = '';
+
+  if (hasMore) {
+    vizId = paramsMatchMore?.params?.vizId;
+    extraConfig = paramsMatchMore?.params?.extraConfig;
+  } else {
+    vizId = paramsMatch?.params?.vizId || '';
+  }
+
+  console.log('hasMore 模式', hasMore, extraConfig);
+
+  // 更新实际接口配置
+  let config = {};
+  if (extraConfig) {
+    config = JSON.parse(decodeURIComponent(extraConfig));
+  }
+
   return (
     <Board
+      extraConfig={config}
       key={vizId}
       id={vizId}
       autoFit={true}
@@ -32,11 +63,5 @@ export const BoardPage = memo(() => {
       renderMode="read"
       hideTitle={true}
     />
-    // <Switch>
-    //   <Route
-    //     path="/organizations/:orgId/vizs/:vizId?/boardEditor"
-    //     render={() => <BoardEditor boardId={vizId} />}
-    //   />
-    // </Switch>
   );
 });

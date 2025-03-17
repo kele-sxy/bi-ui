@@ -443,7 +443,7 @@ class BasicScatterChart extends Chart {
       ...positions,
       show,
       type,
-      height: height || null,
+      itemHeight: height || null,
       orient,
       selected,
       data: seriesNames,

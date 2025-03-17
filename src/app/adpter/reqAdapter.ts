@@ -11,6 +11,19 @@ import {
 
 const GAIA_API_PREFIX = '/gaia/v1';
 
+const isJSON = (str: any) => {
+  if (typeof str === 'string') {
+    try {
+      JSON.parse(str);
+      return true;
+    } catch (e) {
+      console.log('e');
+      return false;
+    }
+  }
+  return false;
+};
+
 /**
  * 查询联邦数据列表
  * @param arg
@@ -19,14 +32,17 @@ export const fetchDataViewsActionFromBe = async arg => {
   const res = await request2<any>({
     method: 'GET',
     baseURL: GAIA_API_PREFIX,
-    url: `/edge/mng/analyse/fed-dataset/list`,
+    url: `/dataServing/data/serving/mng/analyse/fed-dataset/list`,
     params: {
       ...arg,
       pageSize: 99999,
+      status: 'success',
     },
   });
+  // datasetType: "0" 联合 “1” 本方
   const response: { data: any[] } = {
     data: (res?.data?.list || []).map(x => {
+      const sub = x.datasetType === '0' ? '联合' : '本方';
       return {
         config: null,
         createBy: null,
@@ -36,7 +52,7 @@ export const fetchDataViewsActionFromBe = async arg => {
         index: 1.0,
         isFolder: false,
         model: null,
-        name: x.name,
+        name: `${x.name}（${sub}）`,
         orgId: arg.orgId,
         parentId: null,
         permission: null,
@@ -60,7 +76,7 @@ export const fetchViewDetailActionFromBe = async arg => {
   const res = await request2<any>({
     method: 'GET',
     baseURL: GAIA_API_PREFIX,
-    url: `/edge/mng/analyse/fed-dataset/explore`,
+    url: `/dataServing/data/serving/mng/analyse/fed-dataset/explore`,
     params: {
       id: arg,
     },
@@ -81,7 +97,7 @@ export const updateChartActionForBe = async (chartId, originBody) => {
   const res = await request2<any>({
     method: 'POST',
     baseURL: GAIA_API_PREFIX,
-    url: `/edge/mng/analyse/fed-report/create`,
+    url: `/dataServing/data/serving/mng/analyse/fed-report/create`,
     data: {
       ...originBody,
       id: chartId,
@@ -105,9 +121,10 @@ export const fetchChartListFromBe = async () => {
   const res = await request2<any>({
     method: 'GET',
     baseURL: GAIA_API_PREFIX,
-    url: `/edge/mng/analyse/fed-report/list`,
+    url: `/dataServing/data/serving/mng/analyse/fed-report/list`,
     params: {
       pageSize: 99999,
+      status: 'online',
     },
   });
 
@@ -143,7 +160,7 @@ export const fetchChartActionFromBe = async chartId => {
   const res = await request2<any>({
     method: 'GET',
     baseURL: GAIA_API_PREFIX,
-    url: `/edge/mng/analyse/fed-report/queryReportDetail`,
+    url: `/dataServing/data/serving/mng/analyse/fed-report/queryReportDetail`,
     params: {
       id: chartId,
     },
@@ -161,7 +178,7 @@ export const batchFetchChartInfoFromBe = async args => {
   const res = await request2<any>({
     method: 'GET',
     baseURL: GAIA_API_PREFIX,
-    url: `/edge/mng/analyse/fed-report/batchQueryReportDetail`,
+    url: `/dataServing/data/serving/mng/analyse/fed-report/batchQueryReportDetail`,
     params: {
       idList: args,
     },
@@ -193,7 +210,7 @@ export const fetchDistinctDataFromBe = async args => {
   const res = await request2<any>({
     method: 'GET',
     baseURL: GAIA_API_PREFIX,
-    url: `/edge/mng/analyse/fed-dataset/explore`,
+    url: `/dataServing/data/serving/mng/analyse/fed-dataset/explore`,
     params: {
       id: args.viewId,
     },
@@ -202,7 +219,11 @@ export const fetchDistinctDataFromBe = async args => {
   const statistic = res.data?.exploreAnalysis?.statistics?.find(
     x => x.name === args.columns?.[0]?.column?.[1],
   );
-  const category = JSON.parse(statistic?.hiddenStatistic?.category || '{}');
+  const category = JSON.parse(
+    statistic?.hiddenStatistic?.category ||
+      statistic?.hiddenStatistic?.string ||
+      '{}',
+  );
   const distinctData = (category?.constData || []).map(x => [x.item]);
   console.log(distinctData);
   return {
@@ -246,94 +267,71 @@ export const fetchDistinctDataFromBe = async args => {
  */
 export const fetchDataSetActionFromBe = async args => {
   let res;
+
+  const isGet = args.method === 'GET';
+  const wrapper = args.wrapper || 'data';
+  const targetChainForReport = args?.targetChainForReport;
+  const curReportId = args.chartId;
+  const authorization = args?.authorization;
+  // extraMap.fedBoardDetail.1
+  const extra: any = isGet
+    ? {
+        method: 'GET',
+        params: args?.params, // 新的预览
+      }
+    : {
+        method: 'POST',
+        // 老的逻辑
+        data: args?.data || {
+          ...args,
+          reportId: args.chartId,
+          fedDatasetId: args.viewId,
+        },
+      };
+  const extraHeaders = authorization
+    ? {
+        headers: {
+          Authorization: authorization,
+        },
+      }
+    : {};
+
   try {
     res = await request2<any>({
-      method: 'POST',
-      baseURL: GAIA_API_PREFIX,
-      url: `/edge/mng/analyse/fed-report/execute`,
-      data: {
-        ...args,
-        reportId: args.chartId,
-        fedDatasetId: args.viewId,
-      },
+      baseURL: args.baseURL || GAIA_API_PREFIX,
+      url:
+        args.url || `/dataServing/data/serving/mng/analyse/fed-report/execute`,
+      ...extraHeaders,
+      ...extra,
     });
   } catch (e) {}
-  // const cubeData = {
-  //   columns: [
-  //     {
-  //       fmt: null,
-  //       foreignKeys: null,
-  //       name: ['groupdata_leader.company'],
-  //       type: 'String',
-  //     },
-  //     {
-  //       fmt: null,
-  //       foreignKeys: null,
-  //       name: ['COUNT(groupdata_leader.age)'],
-  //       type: 'NUMERIC',
-  //     },
-  //   ],
-  //   rows: [
-  //     ['A', '1'],
-  //     ['B', '2'],
-  //     ['C', '3'],
-  //     ['D', '4'],
-  //     ['E', '5'],
-  //     ['F', '6'],
-  //   ],
-  // };
-  //清扬测试
-  // const testData = {
-  //   columns: [
-  //     { fmt: null, foreignKeys: null, name: ['data1.籍贯'], type: 'STRING' },
-  //     {
-  //       fmt: null,
-  //       foreignKeys: null,
-  //       name: ['COUNT(data1.姓名)'],
-  //       type: 'NUMERIC',
-  //     },
-  //   ],
-  //   id: 'DFf8be3bf8c8b84592ba40d7bc10997c2c',
-  //   name: null,
-  //   pageInfo: { countTotal: false, pageNo: 1, pageSize: 100, total: 4 },
-  //   rows: [
-  //     ['上海', 1],
-  //     ['安徽', 1],
-  //     ['江苏', 1],
-  //     ['浙江', 3],
-  //   ],
-  //   script: null,
-  //   vizId: null,
-  //   vizType: null,
-  // };
-  // const testData1 = {
-  //   columns: [
-  //     { fmt: null, foreignKeys: null, name: ['data1.姓名'], type: 'STRING' },
-  //     {
-  //       fmt: null,
-  //       foreignKeys: null,
-  //       name: ['SUM(data1.年龄)'],
-  //       type: 'NUMERIC',
-  //     },
-  //   ],
-  //   id: 'DFf88337d90dee4d73ac983263d1fe1426',
-  //   name: null,
-  //   pageInfo: { countTotal: false, pageNo: 1, pageSize: 100, total: 6 },
-  //   rows: [
-  //     ['userA', 20.0],
-  //     ['userB', 30.0],
-  //     ['userC', 80.0],
-  //     ['userD', 44.0],
-  //     ['userE', 31.0],
-  //     ['userF', 16.0],
-  //   ],
-  //   script:
-  //     'SELECT `data1`.`姓名` AS `data1.姓名`, SUM(`data1`.`年龄`) AS `SUM(data1.年龄)` FROM `data1` GROUP BY `data1`.`姓名`',
-  //   vizId: null,
-  //   vizType: null,
-  // };
+
+  let reportData = res?.[wrapper];
+
+  if (targetChainForReport) {
+    const arr = targetChainForReport.split('.');
+
+    if (arr.length) {
+      arr.forEach((item: any) => {
+        reportData = isJSON(reportData[item])
+          ? JSON.parse(reportData[item])
+          : reportData[item];
+      });
+    }
+  }
+
+  console.log('reportData', reportData);
+
+  let innerData: any = [];
+  const isReplce = !!args?.targetChainForReportInner; // 替换原本的标识
+  if (isReplce) {
+    innerData = reportData.filter((item: any) => {
+      return item.reportId === curReportId;
+    })[0];
+  }
+
   const response = {
-    data: res?.data, // || cubeData || testData || testData1,
+    data: isReplce ? innerData[args?.targetChainForReportInner] : reportData,
   };
   return response;
 };
@@ -346,7 +344,7 @@ export const fetchBoardListFromBe = async () => {
   const res = await request2<any>({
     method: 'GET',
     baseURL: GAIA_API_PREFIX,
-    url: `/edge/mng/analyse/fed-board/list`,
+    url: `/dataServing/data/serving/mng/analyse/fed-board/list`,
     params: {
       pageSize: 99999,
     },
@@ -380,17 +378,84 @@ export const fetchBoardListFromBe = async () => {
  * @param boardId
  * @returns
  */
-export const fetchBoardDetailFromBe = async boardId => {
-  const res = await request2<any>({
-    method: 'GET',
-    baseURL: GAIA_API_PREFIX,
-    url: `/edge/mng/analyse/fed-board/queryBoardDetail`,
-    params: {
-      id: boardId,
-    },
+export const fetchBoardDetailFromBe = async ({
+  method,
+  baseURL,
+  url,
+  params,
+  targetChain,
+  data,
+  id,
+  authorization,
+  wrapper,
+}: any) => {
+  console.log(
+    'method, baseURL, url, params',
+    method,
+    baseURL,
+    url,
+    params,
+    data,
+    targetChain,
+    authorization,
+  );
+
+  const isPost = method === 'POST';
+
+  // extraMap.fedBoardDetail.1
+  const extra: any = isPost
+    ? {
+        method: 'POST',
+        data,
+      }
+    : {
+        method: 'GET',
+        params: params
+          ? params
+          : {
+              id,
+            }, // 新的预览
+      };
+
+  const extraHeaders = authorization
+    ? {
+        headers: {
+          Authorization: authorization,
+        },
+      }
+    : {};
+
+  console.log('1231211', {
+    baseURL: baseURL || GAIA_API_PREFIX,
+    url:
+      url || `/dataServing/data/serving/mng/analyse/fed-board/queryBoardDetail`,
+    ...extraHeaders,
+    ...extra,
   });
+
+  const res = await request2<any>({
+    baseURL: baseURL || GAIA_API_PREFIX,
+    url:
+      url || `/dataServing/data/serving/mng/analyse/fed-board/queryBoardDetail`,
+    ...extraHeaders,
+    ...extra,
+  });
+  let boardData = res?.[wrapper ? wrapper : 'data'];
+
+  if (targetChain) {
+    const arr = targetChain.split('.');
+
+    if (arr.length) {
+      arr.forEach((item: any) => {
+        boardData = isJSON(boardData[item])
+          ? JSON.parse(boardData[item])
+          : boardData[item];
+      });
+    }
+  }
+
   const response = {
-    data: fedBoardToBoard(res.data),
+    data: fedBoardToBoard(boardData),
   };
   return response;
 };
@@ -405,7 +470,7 @@ export const updateDashboardForBe = async (boardId, originBody) => {
   const res = await request2<any>({
     method: 'POST',
     baseURL: GAIA_API_PREFIX,
-    url: `/edge/mng/analyse/fed-board/create`,
+    url: `/dataServing/data/serving/mng/analyse/fed-board/create`,
     data: {
       ...originBody,
       id: boardId,

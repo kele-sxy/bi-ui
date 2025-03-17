@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 
+import { QuestionCircleOutlined } from '@ant-design/icons';
+import { Tooltip } from 'antd';
 import { ChartDataConfigSectionProps } from 'app/types/ChartDataConfigSection';
 import { FC, memo } from 'react';
 import styled from 'styled-components/macro';
@@ -25,11 +27,20 @@ import { dataConfigSectionComparer } from './utils';
 
 const BaseDataConfigSection: FC<ChartDataConfigSectionProps> = memo(
   ({ modalSize, config, extra, translate = title => title, ...rest }) => {
+    const isDimension = config?.key === 'dimension';
+    const text =
+      '如果特征类型为数值型（int，float），默认使用分箱结果做维度分析；最大分箱数：30，分箱方式：等宽分箱；';
     return (
       <StyledBaseDataConfigSection>
         <StyledBaseDataConfigSectionTitle>
           {translate(config.label || '') +
             (config?.drillable ? `(${translate('drillable')})` : '')}
+          {isDimension && (
+            <Tooltip placement="topRight" title={text}>
+              &nbsp;&nbsp;
+              <QuestionCircleOutlined />
+            </Tooltip>
+          )}
           {extra?.()}
         </StyledBaseDataConfigSectionTitle>
         <ChartDraggableTargetContainer

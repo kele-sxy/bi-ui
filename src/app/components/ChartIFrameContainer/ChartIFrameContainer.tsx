@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+import { Empty } from 'antd';
 import { ReactComponent as Loading } from 'app/assets/images/loading.svg';
 import {
   Frame,
@@ -60,6 +61,42 @@ const ChartIFrameContainer: FC<{
     return newStyle;
   };
 
+  const { dataset, chart } = props;
+
+  const isNotLoading =
+    dataset &&
+    dataset.hasOwnProperty('columns') &&
+    (!dataset?.columns || dataset?.columns?.length === 0);
+
+  const { beStatus, isDeleted } = chart || {};
+  console.log('beStatus', beStatus);
+
+  const needPadding = !beStatus;
+  const isDel = isDeleted === 1;
+
+  let description = '';
+
+  if (beStatus === 'offline') {
+    description = '报表已下线';
+  }
+
+  if (isDel) {
+    description = '报表已删除';
+  }
+  const insertStyle = needPadding
+    ? {
+        paddingTop: '25%',
+      }
+    : {};
+
+  console.log('isNotLoading', isNotLoading);
+
+  if (!isNotLoading) {
+    description = '暂无数据';
+  }
+
+  // const isDel = chart
+
   const render = () => {
     if (!props?.chart?.useIFrame) {
       return (
@@ -91,6 +128,9 @@ const ChartIFrameContainer: FC<{
           </div>
         </div>
       );
+    }
+    if (isNotLoading) {
+      return <Empty style={insertStyle} description={description} />;
     }
 
     return (

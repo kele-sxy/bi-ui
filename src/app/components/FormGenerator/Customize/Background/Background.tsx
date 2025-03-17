@@ -28,6 +28,7 @@ import { ItemLayoutProps } from '../../types';
 
 export const Background: FC<ItemLayoutProps<ChartStyleConfig>> = memo(
   ({ ancestors, translate: t = title => title, data, onChange, ...rest }) => {
+    const keleS = false;
     const { value, options } = data;
     const gt = useI18NPrefix(`viz.board.setting`);
     const valRef = useRef<BackgroundConfig>();
@@ -64,18 +65,23 @@ export const Background: FC<ItemLayoutProps<ChartStyleConfig>> = memo(
             />
           </WithColorPicker>
         </Group>
-        <span>{gt('image')}</span>
-        <UploadDragger
-          value={value.image as string}
-          onChange={onImageChange}
-          placeholder={gt('uploadTip')}
-        />
-        <div>URL</div>
-        <Input
-          className="datart-ant-input"
-          value={value.image}
-          onChange={onImageUrlChange}
-        />
+        {keleS && <span>{gt('image')}</span>}
+        {keleS && (
+          <UploadDragger
+            value={value.image as string}
+            onChange={onImageChange}
+            placeholder={gt('uploadTip')}
+          />
+        )}
+        {keleS && <div>URL</div>}
+
+        {keleS && (
+          <Input
+            className="datart-ant-input"
+            value={value.image}
+            onChange={onImageUrlChange}
+          />
+        )}
       </Wrap>
     );
   },

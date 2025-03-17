@@ -456,6 +456,8 @@ export const ChartEditor: FC<ChartEditorProps> = ({
       orgId: orgId,
       config: dataChartConfig,
       status: 1,
+      beStatus: '',
+      isDeleted: 0,
       description: '',
     };
     return dataChart;

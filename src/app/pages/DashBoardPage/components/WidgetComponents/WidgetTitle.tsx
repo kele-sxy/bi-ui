@@ -40,9 +40,9 @@ const StyledWrap = styled.div<{ conf: WidgetTitleConfig }>`
   line-height: 24px;
   text-align: ${p => p.conf.textAlign};
   cursor: pointer;
-  display: flex;
 `;
 const NameWrap = styled.span<{ conf: WidgetTitleConfig }>`
+  width: 100%;
   font-family: ${p => p.conf.font.fontFamily};
   font-size: ${p => p.conf.font.fontSize}px;
   font-style: ${p => p.conf.font.fontStyle};

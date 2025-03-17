@@ -337,6 +337,7 @@ export interface LegendStyle {
   top?: number;
   left?: number;
   width?: number;
+  itemHeight?: number | null;
   height?: number | null;
   type: string;
   orient: string;

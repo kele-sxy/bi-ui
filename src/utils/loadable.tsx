@@ -36,7 +36,16 @@ export const defaultLazyLoad = <
 >(
   importFunc: () => T,
   selectorFunc?: (s: Unpromisify<T>) => U,
-  opts: Opts = { fallback: <LoadingOutlined /> },
+  opts: Opts = {
+    // lx: 图标居中
+    fallback: (
+      <div
+        style={{ position: 'absolute', left: '50%', top: '50%', fontSize: 36 }}
+      >
+        <LoadingOutlined />
+      </div>
+    ),
+  },
 ) => {
   return lazyLoad(importFunc, selectorFunc, opts);
 };

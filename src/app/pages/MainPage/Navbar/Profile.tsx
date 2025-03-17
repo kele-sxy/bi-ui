@@ -114,19 +114,21 @@ export function Profile({ visible, onCancel }: ModalProps) {
         >
           {loggedInUser?.username.substr(0, 1).toUpperCase()}
         </Avatar>
-        <Upload
-          accept=".jpg,.jpeg,.png,.gif"
-          method="post"
-          action={`${BASE_API_URL}/files/user/avatar?userId=${loggedInUser?.id}`}
-          headers={{ authorization: getToken()! }}
-          className="uploader"
-          showUploadList={false}
-          onChange={avatarChange}
-        >
-          <Button type="link" loading={avatarLoading}>
-            {t('clickUpload')}
-          </Button>
-        </Upload>
+        {false && (
+          <Upload
+            accept=".jpg,.jpeg,.png,.gif"
+            method="post"
+            action={`${BASE_API_URL}/files/user/avatar?userId=${loggedInUser?.id}`}
+            headers={{ authorization: getToken()! }}
+            className="uploader"
+            showUploadList={false}
+            onChange={avatarChange}
+          >
+            <Button type="link" loading={avatarLoading}>
+              {t('clickUpload')}
+            </Button>
+          </Upload>
+        )}
       </AvatarUpload>
       <Form
         form={form}

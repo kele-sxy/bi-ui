@@ -15,7 +15,11 @@ export function getToken() {
   // qingyang add
   if (BE_MODE && BE_LOGIN) {
     //TODO:
-    return `bearer ${Cookies.get('bestudio_token') || 'test_token'}`;
+    return `bearer ${
+      Cookies.get('bestudio_token') ||
+      Cookies.get('jewel-ui_token') ||
+      'test_token'
+    }`;
   }
   return Cookies.get(StorageKeys.AuthorizationToken);
 }

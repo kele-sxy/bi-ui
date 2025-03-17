@@ -192,7 +192,7 @@ const config: ChartConfig = {
         {
           label: 'legend.height',
           key: 'height',
-          default: 0,
+          default: 14,
           comType: 'inputNumber',
           options: {
             step: 40,

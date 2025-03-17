@@ -23,7 +23,6 @@ import ChartDrillPaths from 'app/components/ChartDrill/ChartDrillPaths';
 import { ChartIFrameContainer } from 'app/components/ChartIFrameContainer';
 import { InteractionMouseEvent } from 'app/components/FormGenerator/constants';
 import { VizHeader } from 'app/components/VizHeader';
-import { BE_MODE } from 'app/constants';
 import ChartDrillContext from 'app/contexts/ChartDrillContext';
 import { useCacheWidthHeight } from 'app/hooks/useCacheWidthHeight';
 import useChartInteractions from 'app/hooks/useChartInteractions';
@@ -58,7 +57,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components/macro';
-import { BORDER_RADIUS, SPACE_LG } from 'styles/StyleConstants';
+import { BORDER_RADIUS } from 'styles/StyleConstants';
 import { isEmptyArray } from 'utils/object';
 import { urlSearchTransfer } from 'utils/urlSearchTransfer';
 import useDisplayJumpVizDialog from '../hooks/useDisplayJumpVizDialog';
@@ -659,53 +658,53 @@ const ChartPreviewBoard: FC<{
             backendChartId={backendChartId}
           />
         )}
-        <PreviewBlock>
-          <ChartDrillContext.Provider
-            value={{
-              drillOption: drillOptionRef.current,
-              availableSourceFunctions,
-              viewDetailSetting: chartRightClickViewDetailSetting,
-              drillThroughSetting: chartRightClickDrillThroughSetting,
-              onDrillOptionChange: handleDrillOptionChange,
-              onDateLevelChange: handleDateLevelChange,
-              onDrillThroughChange: handleDrillThroughChange(),
-              onViewDataChange: handleViewDataChange(),
-            }}
-          >
-            <div>
-              <ControllerPanel
-                viewId={chartPreview?.backendChart?.viewId}
-                view={chartPreview?.backendChart?.view}
-                chartConfig={chartPreview?.chartConfig}
-                onChange={handleFilterChange}
-              />
-            </div>
-            <ChartWrapper ref={ref}>
-              <Spin wrapperClassName="spinWrapper" spinning={loadingStatus}>
-                <ChartDrillContextMenu
-                  chartConfig={chartPreview?.chartConfig!}
-                  metas={chartPreview?.backendChart?.view?.meta}
-                >
-                  <ChartIFrameContainer
-                    key={backendChartId}
-                    containerId={backendChartId}
-                    dataset={dataset}
-                    chart={chart!}
-                    config={chartPreview?.chartConfig!}
-                    drillOption={drillOptionRef.current}
-                    selectedItems={selectedItems[backendChartId]}
-                    width={cacheW}
-                    height={cacheH}
-                    isLoadingData={isLoadingData}
-                  />
-                </ChartDrillContextMenu>
-              </Spin>
-            </ChartWrapper>
-            <StyledChartDrillPathsContainer>
-              <ChartDrillPaths chartConfig={chartPreview?.chartConfig!} />
-            </StyledChartDrillPathsContainer>
-          </ChartDrillContext.Provider>
-        </PreviewBlock>
+        {/* <PreviewBlock> */}
+        <ChartDrillContext.Provider
+          value={{
+            drillOption: drillOptionRef.current,
+            availableSourceFunctions,
+            viewDetailSetting: chartRightClickViewDetailSetting,
+            drillThroughSetting: chartRightClickDrillThroughSetting,
+            onDrillOptionChange: handleDrillOptionChange,
+            onDateLevelChange: handleDateLevelChange,
+            onDrillThroughChange: handleDrillThroughChange(),
+            onViewDataChange: handleViewDataChange(),
+          }}
+        >
+          <div>
+            <ControllerPanel
+              viewId={chartPreview?.backendChart?.viewId}
+              view={chartPreview?.backendChart?.view}
+              chartConfig={chartPreview?.chartConfig}
+              onChange={handleFilterChange}
+            />
+          </div>
+          <ChartWrapper ref={ref}>
+            <Spin wrapperClassName="spinWrapper" spinning={loadingStatus}>
+              <ChartDrillContextMenu
+                chartConfig={chartPreview?.chartConfig!}
+                metas={chartPreview?.backendChart?.view?.meta}
+              >
+                <ChartIFrameContainer
+                  key={backendChartId}
+                  containerId={backendChartId}
+                  dataset={dataset}
+                  chart={chart!}
+                  config={chartPreview?.chartConfig!}
+                  drillOption={drillOptionRef.current}
+                  selectedItems={selectedItems[backendChartId]}
+                  width={cacheW}
+                  height={cacheH}
+                  isLoadingData={isLoadingData}
+                />
+              </ChartDrillContextMenu>
+            </Spin>
+          </ChartWrapper>
+          <StyledChartDrillPathsContainer>
+            <ChartDrillPaths chartConfig={chartPreview?.chartConfig!} />
+          </StyledChartDrillPathsContainer>
+        </ChartDrillContext.Provider>
+        {/* </PreviewBlock> */}
         {viewDetailPanelContextHolder}
         {jumpDialogContextHolder}
         {openJumpVizDialogModalContextHolder}
@@ -723,15 +722,6 @@ const StyledChartPreviewBoard = styled.div`
   iframe {
     flex-grow: 1000;
   }
-`;
-const PreviewBlock = styled.div`
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  height: 100%;
-  padding: ${BE_MODE ? 0 : SPACE_LG};
-  overflow: hidden;
-  box-shadow: ${p => p.theme.shadowBlock};
 `;
 
 const ChartWrapper = styled.div`

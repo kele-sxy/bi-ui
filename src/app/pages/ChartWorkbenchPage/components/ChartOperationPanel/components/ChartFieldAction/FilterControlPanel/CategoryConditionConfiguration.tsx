@@ -67,6 +67,15 @@ const CategoryConditionConfiguration: ForwardRefRenderFunction<
   },
   ref,
 ) => {
+  console.log(
+    'config',
+    colName,
+    i18nPrefix,
+    condition,
+    dataView,
+    fetchDataByField,
+  );
+
   const t = useI18NPrefix(i18nPrefix);
   const [curTab, setCurTab] = useState<FilterConditionType>(() => {
     if (BE_MODE) {
@@ -102,6 +111,8 @@ const CategoryConditionConfiguration: ForwardRefRenderFunction<
   });
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
   const [isTree] = useState(isTreeModel(condition?.value));
+  console.log('isTree', isTree);
+
   const [treeOptions, setTreeOptions] = useState<string[]>([]);
   const [listDatas, setListDatas] = useState<RelationFilterValue[]>([]);
   const [treeDatas, setTreeDatas] = useState<RelationFilterValue[]>([]);
@@ -254,9 +265,9 @@ const CategoryConditionConfiguration: ForwardRefRenderFunction<
       .setOperator(null!)
       .setValue(null)
       .asFilter(conditionType);
-    setTreeDatas([]);
-    setTargetKeys([]);
-    setListDatas([]);
+    // setTreeDatas([]);
+    // setTargetKeys([]);
+    // setListDatas([]);
     onConditionChange(filter);
   };
 

@@ -88,6 +88,7 @@ const ChartDataViewPanel: FC<{
   chartConfig?: ChartConfig;
   onDataViewChange?: (clear?: boolean) => void;
 }> = memo(({ dataView, defaultViewId, chartConfig, onDataViewChange }) => {
+  const kele = false;
   const t = useI18NPrefix(`viz.workbench.dataview`);
   const tView = useI18NPrefix('view');
   const dispatch = useDispatch();
@@ -506,49 +507,56 @@ const ChartDataViewPanel: FC<{
           filterTreeNode={filterDateViewTreeNode}
           bordered={false}
         />
-        <Popover
-          placement="bottomRight"
-          visible={isDisplayAddNewModal}
-          onVisibleChange={() => setIsDisplayAddNewModal()}
-          trigger="click"
-          overlayClassName="datart-popup"
-          content={
-            <Menu
-              onClick={handleClickMenu}
-              defaultSelectedKeys={[
-                'byNameSort',
-                isGroup ? 'byGroup' : 'byNoGroup',
-              ]}
-            >
-              <MenuListItem key="searchField">{t('searchField')}</MenuListItem>
-              {/* qingyang modified */}
-              {!BE_MODE && (
-                <MenuListItem key="createComputedFields">
-                  {t('createComputedFields')}
-                </MenuListItem>
-              )}
-              <MenuListItem
-                disabled={dataView?.type !== 'STRUCT'}
-                title={t('Group')}
-                key="group"
-                sub
+        {kele && (
+          <Popover
+            placement="bottomRight"
+            visible={isDisplayAddNewModal}
+            onVisibleChange={() => setIsDisplayAddNewModal()}
+            trigger="click"
+            overlayClassName="datart-popup"
+            content={
+              <Menu
+                onClick={handleClickMenu}
+                defaultSelectedKeys={[
+                  'byNameSort',
+                  isGroup ? 'byGroup' : 'byNoGroup',
+                ]}
               >
-                <MenuListItem key="byGroup">
-                  {t('byDataBaseGroup')}
+                <MenuListItem key="searchField">
+                  {t('searchField')}
                 </MenuListItem>
-                <MenuListItem key="byNoGroup">{t('noGroup')}</MenuListItem>
-              </MenuListItem>
-              <MenuListItem title={t('Sort')} key="sort" sub>
-                <MenuListItem key="byNameSort">{t('byNameSort')}</MenuListItem>
-                <MenuListItem key="byOriginalFieldSort">
-                  {t('noSort')}
+                {/* qingyang modified */}
+                {!BE_MODE && (
+                  <MenuListItem key="createComputedFields">
+                    {t('createComputedFields')}
+                  </MenuListItem>
+                )}
+                <MenuListItem
+                  disabled={dataView?.type !== 'STRUCT'}
+                  title={t('Group')}
+                  key="group"
+                  sub
+                >
+                  <MenuListItem key="byGroup">
+                    {t('byDataBaseGroup')}
+                  </MenuListItem>
+                  <MenuListItem key="byNoGroup">{t('noGroup')}</MenuListItem>
                 </MenuListItem>
-              </MenuListItem>
-            </Menu>
-          }
-        >
-          <ToolbarButton icon={<MoreOutlined />} size="small" />
-        </Popover>
+                <MenuListItem title={t('Sort')} key="sort" sub>
+                  <MenuListItem key="byNameSort">
+                    {t('byNameSort')}
+                  </MenuListItem>
+                  <MenuListItem key="byOriginalFieldSort">
+                    {t('noSort')}
+                  </MenuListItem>
+                </MenuListItem>
+              </Menu>
+            }
+          >
+            <ToolbarButton icon={<MoreOutlined />} size="small" />
+          </Popover>
+        )}
+
         {modalContextHolder}
       </Header>
       <StyleSearchbar visible={isShowSearch}>

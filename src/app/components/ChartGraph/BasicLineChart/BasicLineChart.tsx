@@ -580,7 +580,7 @@ class BasicLineChart extends Chart {
       show,
       type,
       orient,
-      height: height || null,
+      itemHeight: height || null,
       selected,
       data: seriesNames,
       textStyle: font,

@@ -10,4 +10,4 @@ WORKDIR /
 ADD docker-entrypoint.d /docker-entrypoint.d
 ADD nginx.conf.tmpl /nginx.conf.tmpl
 
-COPY dist /usr/share/nginx/html/gaia/v1/bi
+COPY dist /usr/share/nginx/html/

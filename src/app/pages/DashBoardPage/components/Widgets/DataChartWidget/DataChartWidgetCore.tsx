@@ -15,6 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/* eslint-disable */
 import useModal from 'antd/lib/modal/useModal';
 import ChartDrillContextMenu from 'app/components/ChartDrill/ChartDrillContextMenu';
 import ChartDrillPaths from 'app/components/ChartDrill/ChartDrillPaths';
@@ -79,6 +80,9 @@ import { WidgetSelectionContext } from '../../WidgetProvider/WidgetSelectionProv
 export const DataChartWidgetCore: React.FC<{}> = memo(() => {
   const { dataChart, availableSourceFunctions, chartDataView } =
     useContext(WidgetChartContext);
+
+  console.log('dataChart !!!', dataChart);
+
   const dispatch = useDispatch();
   const scale = useContext(BoardScaleContext);
   const { data: dataset } = useContext(WidgetDataContext);
@@ -561,6 +565,15 @@ export const DataChartWidgetCore: React.FC<{}> = memo(() => {
     if (cacheH <= 1 || cacheW <= 1) return null;
     if (errText) return errText;
     const drillOption = drillOptionRef.current;
+
+    console.log('ChartIFrameContainer 22222');
+
+    /* eslint-disable */
+
+    if (chart) {
+      chart.beStatus = dataChart?.beStatus;
+      chart.isDeleted = dataChart?.isDeleted;
+    }
 
     return (
       <ChartIFrameContainer

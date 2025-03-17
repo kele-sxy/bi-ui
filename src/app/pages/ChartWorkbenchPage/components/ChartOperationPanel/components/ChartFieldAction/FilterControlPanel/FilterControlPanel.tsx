@@ -69,6 +69,7 @@ const FilterControlPanel: FC<
     fetchDataByField,
     form,
   }) => {
+    const kele = false;
     const formItemStyles = {
       labelCol: { span: 4 },
       wrapperCol: { span: 20 },
@@ -274,27 +275,29 @@ const FilterControlPanel: FC<
           name="filterOption"
           initialValue={filter?.condition?.value}
           getValueFromEvent={filterOptionValidator}
-          rules={[{ required: true }]}
+          // rules={[{ required: true }]}
         >
           {renderConditionConfigurationByModel()}
         </FormItemEx>
-        <FormItemEx
-          {...formItemStyles}
-          label={t('filterVisibility')}
-          name="filterVisibility"
-          rules={[{ required: true }]}
-          initialValue={filter?.visibility}
-          getValueFromEvent={args => {
-            return typeof args === 'object' ? args?.value : args;
-          }}
-        >
-          <FilterVisibilityConfiguration
-            visibility={filter?.visibility}
-            otherFilters={getVisibilityOtherFilters()}
-            onChange={handleVisibilityChange}
-          />
-        </FormItemEx>
-        {filter?.visibility !== ControllerVisibilityTypes.Hide && (
+        {kele && (
+          <FormItemEx
+            {...formItemStyles}
+            label={t('filterVisibility')}
+            name="filterVisibility"
+            rules={[{ required: true }]}
+            initialValue={filter?.visibility}
+            getValueFromEvent={args => {
+              return typeof args === 'object' ? args?.value : args;
+            }}
+          >
+            <FilterVisibilityConfiguration
+              visibility={filter?.visibility}
+              otherFilters={getVisibilityOtherFilters()}
+              onChange={handleVisibilityChange}
+            />
+          </FormItemEx>
+        )}
+        {kele && filter?.visibility !== ControllerVisibilityTypes.Hide && (
           <>
             <FormItemEx
               {...formItemStyles}

@@ -718,7 +718,7 @@
         "row": "行",
         "dimension": "维度",
         "metrics": "指标",
-        "mixed": "字段(仅支持本方字段)",
+        "mixed": "字段",
         "filter": "筛选(不支持关联字段)",
         "colorize": "颜色",
         "colorRange": "Range Color",
@@ -732,7 +732,7 @@
         "AGG_DATE_MONTH": "按月",
         "AGG_DATE_WEEK": "按周",
         "AGG_DATE_DAY": "按日",
-        "drillable": "可钻取，仅支持单方的非关联字段",
+        "drillable": "仅支持单方的非关联字段",
         "actions": {
           "sort": {
             "title": "排序",
@@ -1071,7 +1071,7 @@
         "multiSelect": "多选",
         "zoomIn": "缩小视图",
         "zoomOut": "放大视图",
-        "widgetList": "组件列表",
+        "widgetList": "报表名称",
         "group": "成组",
         "unGroup": "取消成组"
       },
@@ -1086,7 +1086,7 @@
         "setting": "设置",
         "board": "面板",
         "widget": "组件",
-        "widgetList": "组件列表",
+        "widgetList": "报表名称",
         "title": "标题",
         "align": "对齐",
         "showTitle": "显示标题",

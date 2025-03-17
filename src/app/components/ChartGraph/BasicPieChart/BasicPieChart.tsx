@@ -301,7 +301,7 @@ class BasicPieChart extends Chart {
       ...positions,
       show,
       type,
-      height: height || null,
+      itemHeight: height || null,
       orient,
       selected,
       textStyle: font,

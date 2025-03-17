@@ -57,7 +57,12 @@ export const handleServerBoardAction =
   }) =>
   async (dispatch, getState) => {
     const { data, renderMode, filterSearchMap, executeToken } = params;
+    console.log('data', data);
+
     const dashboard = getDashBoardByResBoard(data);
+
+    console.log('dashboard', dashboard);
+
     const { datacharts, views: serverViews, widgets: serverWidgets } = data;
 
     const dataCharts: DataChart[] = getDataChartsByServer(
@@ -81,12 +86,18 @@ export const handleServerBoardAction =
       widgetIds,
       controllerWidgets,
     });
+
+    console.log('boardInfo', boardInfo);
+
     if (renderMode === 'schedule') {
       boardInfo = getScheduleBoardInfo(boardInfo, widgetMap);
     }
 
     const widgetInfoMap = getWidgetInfoMapByServer(widgetMap);
     const allDataCharts: DataChart[] = dataCharts.concat(wrappedDataCharts);
+    // TODO: kele
+    console.log('allDataCharts', allDataCharts);
+
     const viewViews = getChartDataView(serverViews, allDataCharts);
 
     if (viewViews) {
@@ -108,14 +119,26 @@ export const handleServerBoardAction =
       });
     }
 
+    // 11111
+
+    console.log('dashboard 11!!!!!!!', dashboard, boardInfo);
+
     await dispatch(
       boardActions.setBoardState({
         board: dashboard,
         boardInfo: boardInfo,
       }),
     );
+
     dispatch(boardActions.setViewMap(viewViews));
     dispatch(boardActions.setDataChartToMap(allDataCharts));
+
+    console.log('widgetInfoMap !!!', {
+      boardId: dashboard.id,
+      widgetMap: widgetMap,
+      widgetInfoMap: widgetInfoMap,
+    });
+
     dispatch(
       boardActions.setWidgetMapState({
         boardId: dashboard.id,
@@ -126,6 +149,8 @@ export const handleServerBoardAction =
   };
 export const getWidgetChartDatasAction =
   (boardId: string) => (dispatch, getState) => {
+    console.log('getWidgetChartDatasAction !!!!');
+
     const boardState = getState() as { board: BoardState };
     const boardMapWidgetMap = boardState.board.widgetRecord;
     const WidgetDataMap = boardState.board.widgetDataMap;

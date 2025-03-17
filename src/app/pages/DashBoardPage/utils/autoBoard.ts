@@ -114,30 +114,30 @@ export const initAutoBoardConfig = () => {
             },
           ],
         },
-        {
-          label: 'background.background',
-          key: 'background',
-          comType: 'group',
-          rows: [
-            {
-              label: 'background.background',
-              key: 'background',
-              default: {
-                color: 'transparent', // TODO 根据当前主题色配置
-                image: '',
-                size: '100% 100%',
-                repeat: 'no-repeat',
-              },
-              value: {
-                color: 'transparent', // TODO 根据当前主题色配置
-                image: '',
-                size: '100% 100%',
-                repeat: 'no-repeat',
-              },
-              comType: 'background',
-            },
-          ],
-        },
+        // {
+        //   label: 'background.background',
+        //   key: 'background',
+        //   comType: 'group',
+        //   rows: [
+        //     {
+        //       label: 'background.background',
+        //       key: 'background',
+        //       default: {
+        //         color: 'transparent', // TODO 根据当前主题色配置
+        //         image: '',
+        //         size: '100% 100%',
+        //         repeat: 'no-repeat',
+        //       },
+        //       value: {
+        //         color: 'transparent', // TODO 根据当前主题色配置
+        //         image: '',
+        //         size: '100% 100%',
+        //         repeat: 'no-repeat',
+        //       },
+        //       comType: 'background',
+        //     },
+        //   ],
+        // },
       ],
       i18ns: [
         {

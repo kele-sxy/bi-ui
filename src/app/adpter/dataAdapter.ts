@@ -18,47 +18,31 @@ export const fedDataSetToDataArtView = (beData: any): View => {
   const partyDatasetConfig = JSON.parse(beData.partyDatasetConfig || '[]');
   const columns = {};
   const hierarchy = {};
-  const guestId = beData.roles.guest?.[0];
-  const guestFields = Object.keys(beData.fedColumns?.[guestId] || []);
-  guestFields.forEach(field => {
-    const commonColInfo = {
-      type: beData.fedColumns?.[guestId]?.[field] || 'STRING',
-      category: 'UNCATEGORIZED',
-      // add for disable drill, will add to dataart via transformHierarchyMeta
-      cooperatorCode: soloDatasetConfig.partnerCode,
-      local: true,
-      joinField: soloDatasetConfig?.joinFields?.includes(field),
-    };
-    columns[`${soloDatasetConfig.name}.${field}`] = {
-      ...commonColInfo,
-      name: [soloDatasetConfig.name, field],
-    };
-    hierarchy[`${soloDatasetConfig.name}.${field}`] = {
-      ...commonColInfo,
-      name: `${soloDatasetConfig.name}.${field}`,
-      path: [soloDatasetConfig.name, field],
-    };
-  });
-  partyDatasetConfig.forEach(datasetConfig => {
-    const partyId = datasetConfig.partnerCode;
-    const hostFields = Object.keys(beData.fedColumns?.[partyId] || []);
-    hostFields.forEach(field => {
+
+  const unionConfig = [soloDatasetConfig, ...partyDatasetConfig];
+
+  console.log('unionConfig', unionConfig);
+
+  unionConfig.forEach(item => {
+    const { partnerCode, joinFields, name } = item;
+    const curFields = Object.keys(beData.fedColumns?.[partnerCode] || []);
+    curFields.forEach(field => {
       const commonColInfo = {
-        type: beData.fedColumns?.[partyId]?.[field] || 'STRING',
+        type: beData.fedColumns?.[partnerCode]?.[field] || 'STRING',
         category: 'UNCATEGORIZED',
         // add for disable drill, will add to dataart via transformHierarchyMeta
-        cooperatorCode: partyId,
-        local: false,
-        joinField: datasetConfig?.joinFields?.includes(field),
+        cooperatorCode: partnerCode,
+        local: true,
+        joinField: joinFields?.includes(field),
       };
-      columns[`${datasetConfig.name}.${field}`] = {
+      columns[`${name}.${field}`] = {
         ...commonColInfo,
-        name: [datasetConfig.name, field],
+        name: [name, field],
       };
-      hierarchy[`${datasetConfig.name}.${field}`] = {
+      hierarchy[`${name}.${field}`] = {
         ...commonColInfo,
-        name: `${datasetConfig.name}.${field}`,
-        path: [datasetConfig.name, field],
+        name: `${name}.${field}`,
+        path: [name, field],
       };
     });
   });
@@ -127,12 +111,23 @@ export const fedReportToChart = (
   };
 };
 
+// http://localhost:3000/gaia/v1/bi/#/organizations/ecac2714a20d4915bdbaa7daef89fd53/boardDetail/%7B%22url%22%3A%22%2Fedge%2Fmng%2Fapi%2FdataServer%2Fv2%2Fdetail%22%2C%22params%22%3A%7B%22serviceId%22%3A%223487d223e28649258f5047a35cc054c4%22%7D%2C%22targetChain%22%3A%22extraMap.fedBoardDTO%22%7D?hideNav=true
+
 export const fedBoardToBoard = (beData): ServerDashboard => {
+  console.log('beData', beData);
+
   return {
     config: beData.config,
     createBy: '534f81694ce64551a1f899e03f787de2',
     createTime: '2023-03-17 13:04:25',
-    datacharts: (beData.fedReports || []).map(x => fedReportToChart(x)),
+    datacharts: (beData.fedReports || []).map(x => {
+      return {
+        // kele: 蓝象状态
+        beStatus: x.status, // offline
+        isDeleted: x.isDeleted,
+        ...fedReportToChart(x),
+      };
+    }),
     // download: true,
     id: `${beData.id}`,
     index: 14.0,

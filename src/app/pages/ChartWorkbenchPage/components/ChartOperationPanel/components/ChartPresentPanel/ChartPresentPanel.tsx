@@ -15,9 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+/* eslint-disable */
 import { ReloadOutlined } from '@ant-design/icons';
-import { Col, Row, Table } from 'antd';
+import { Table } from 'antd';
 import ChartDrillContextMenu from 'app/components/ChartDrill/ChartDrillContextMenu';
 import ChartDrillPaths from 'app/components/ChartDrill/ChartDrillPaths';
 import { ChartIFrameContainerDispatcher } from 'app/components/ChartIFrameContainer';
@@ -43,13 +43,10 @@ import {
 } from 'styles/StyleConstants';
 import { Debugger } from 'utils/debugger';
 import Chart404Graph from './components/Chart404Graph';
-import ChartTypeSelector, {
-  ChartPresentType,
-} from './components/ChartTypeSelector';
+import { ChartPresentType } from './components/ChartTypeSelector';
 
 const CHART_TYPE_SELECTOR_HEIGHT_OFFSET = 50;
 const CHART_DRILL_PATH_HEIGHT = 40;
-
 const ChartPresentPanel: FC<{
   containerHeight?: number;
   containerWidth?: number;
@@ -62,12 +59,13 @@ const ChartPresentPanel: FC<{
   onCreateDownloadDataTask?: () => void;
   selectedItems?: SelectedItem[];
   dataView?: ChartDataView;
+  needLoading?: boolean;
 }> = memo(
   ({
     containerHeight,
     containerWidth,
     chart,
-    dataset,
+    dataset = {},
     chartConfig,
     expensiveQuery,
     allowQuery,
@@ -75,11 +73,18 @@ const ChartPresentPanel: FC<{
     onCreateDownloadDataTask,
     selectedItems,
     dataView,
+    needLoading = true,
   }) => {
+    console.log('needLoading', needLoading, dataset);
+
+    const isInit = Object.keys?.(dataset)?.length === 0;
+
     const translate = useI18NPrefix(`viz.palette.present`);
     const chartDispatcher = ChartIFrameContainerDispatcher.instance();
     const [chartType, setChartType] = useState(ChartPresentType.GRAPH);
     const datasetLoadingStatus = useSelector(datasetLoadingSelector);
+    // console.log('datasetLoadingStatus', datasetLoadingStatus);
+
     const { drillOption } = useContext(ChartDrillContext);
     const isLoadingData = useDebouncedLoadingStatus({
       isLoading: datasetLoadingStatus,
@@ -149,6 +154,7 @@ const ChartPresentPanel: FC<{
                   dataIndex: index,
                 }))}
                 bordered
+                scroll={{ x: 1200, y: 500 }}
               />
             </TableWrapper>
           )}
@@ -162,26 +168,19 @@ const ChartPresentPanel: FC<{
     };
 
     return (
+      // TODO: kele1 onRefreshDataset needLoading 转圈逻辑， 联合分析四期
       <StyledChartPresentPanel>
         {expensiveQuery && allowQuery && (
           <ReloadMask>
-            <ReloadOutlined
-              onClick={onRefreshDataset}
-              spin={datasetLoadingStatus}
-              className="fetchDataIcon"
-            />
+            {!needLoading && (
+              <ReloadOutlined
+                onClick={onRefreshDataset}
+                spin={!isInit && datasetLoadingStatus}
+                className="fetchDataIcon"
+              />
+            )}
           </ReloadMask>
         )}
-        <Row justify="end">
-          <Col>
-            <ChartTypeSelector
-              type={chartType}
-              translate={translate}
-              onChange={setChartType}
-              onCreateDownloadDataTask={onCreateDownloadDataTask}
-            />
-          </Col>
-        </Row>
         {renderReusableChartContainer()}
       </StyledChartPresentPanel>
     );
