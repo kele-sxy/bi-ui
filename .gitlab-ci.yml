@@ -1,0 +1,129 @@
+image: $REGISTRY_URL/k8s/docker:19.03.12-dind-tools
+
+variables:
+  DOCKER_HOST: tcp://localhost:2376
+  DOCKER_TLS_CERTDIR: '/certs'
+  DOCKER_CERT_PATH: '/certs/client'
+  DOCKER_TLS_VERIFY: 1
+  DOCKER_DAEMON_OPTIONS: --insecure-registry=$REGISTRY_URL
+  PLATFORM: linux/amd64 # linux/amd64,linux/arm64
+
+services:
+  - name: $REGISTRY_URL/k8s/docker:19.03.12-dind-tools
+    entrypoint: ['sh', '-c', 'dockerd-entrypoint.sh $DOCKER_DAEMON_OPTIONS']
+
+before_script:
+  - until docker info; do sleep 0.5; done
+  - docker login $REGISTRY_URL --username $HARBOR_USERNAME --password $HARBOR_PASSWORD
+  - export RELEASE_FLAG=$(echo $CI_BUILD_REF_NAME | grep -c release)
+  - export BranchLabel=$([[ $RELEASE_FLAG = 1 ]] && echo ${CI_BUILD_REF_NAME#release*/} || echo $CI_BUILD_REF_NAME)
+  - export BASE_VERSION=$(echo $BranchLabel | awk '{sub("\/","-");print$1}')-${CI_COMMIT_SHA:0:7}
+  - export RELEASE_VERSION=$BranchLabel-beta-${CI_COMMIT_SHA:0:7}
+  - export IMAGE_VERSION=$([[ ${RELEASE_FLAG} = 1 ]] && echo $RELEASE_VERSION || echo $BASE_VERSION)
+  - export HARBOR_GROUP_NAME=${CI_PROJECT_NAMESPACE,,}
+  - export APP_NAME=${CI_PROJECT_NAME,,}
+  - >
+    if [ "$CI_JOB_STAGE" == "deploy" ]; then
+      echo "do nothing when deploy"
+    else
+      . .npmrcs/deploy.properties
+      git submodule deinit --force --all
+      rm -rf .git/modules/
+      git submodule sync --recursive
+      git submodule update --init --remote --recursive --force
+      git fetch 
+    fi
+
+stages:
+  # - lint
+  - build
+  - deploy
+
+lint-dev:
+  stage: build #不卡着build
+  allow_failure: true
+  # interruptible: true
+  script:
+    - sed -i "s@\$NPM_URL@$NPM_URL@g" .npmrcs/ci
+    - sed -i "s@\$NODE_SASS_URL@$NODE_SASS_URL@g" .npmrcs/ci
+    - sed -i "s@\$NPM_AUTH@$NPM_AUTH@g" .npmrcs/ci
+    - export NPMRC_STORE=.npmrcs
+    - export NPMRC=.npmrc
+    - npm install | while IFS= read -r line; do printf '%s %s\n' "$(date)" "$line"; done
+    - npm run lint | while IFS= read -r line; do printf '%s %s\n' "$(date)" "$line"; done
+  only:
+    - dev
+    - /^dev-.*$/
+    - /^feature\/\d+\.\d+\.\d+$/
+  tags:
+    - k8s-frontend
+
+build-dev:
+  stage: build
+  # interruptible: true
+  script:
+    - echo "{\"version\":\"$IMAGE_VERSION\"}" > ./client-build-info.json
+    - NAME=dev
+    - sed -i "s@\$NPM_URL@$NPM_URL@g" .npmrcs/ci
+    - sed -i "s@\$NODE_SASS_URL@$NODE_SASS_URL@g" .npmrcs/ci
+    - sed -i "s@\$NPM_AUTH@$NPM_AUTH@g" .npmrcs/ci
+    - export NPMRC_STORE=.npmrcs
+    - export NPMRC=.npmrc
+    - npmrc ci
+    - npm run bootstrap | while IFS= read -r line; do printf '%s %s\n' "$(date)" "$line"; done
+    - GAIA_COMMIT_INFO=$IMAGE_VERSION npm run build:all | while IFS= read -r line; do printf '%s %s\n' "$(date)" "$line"; done
+
+    - IMAGE=$REGISTRY_URL/$HARBOR_GROUP_NAME-dev/$APP_NAME:$IMAGE_VERSION
+    - ./buildctl --addr tcp://10.99.253.223:1234 build --frontend dockerfile.v0 --local context=. --local dockerfile=./ --output type=image,registry.insecure=true,name=$IMAGE,push=true --allow security.insecure --opt filename=Dockerfile --opt platform=$PLATFORM
+
+  only:
+    - dev
+    - /^dev-.*$/
+    - /^feature\/.*/
+
+  tags:
+    - k8s-frontend
+
+build-release:
+  stage: build
+  interruptible: false
+  script:
+    - echo "{\"version\":\"$IMAGE_VERSION\"}" > ./client-build-info.json
+    - if [ "$CI_BUILD_REF_NAME" = "release/${CI_BUILD_REF_NAME#release/}" ]; then NAME=release-${CI_BUILD_REF_NAME#release/}; else NAME=release; fi
+    - export NPM_CONFIG_DEPLOYURL_PREPROD=$NPM_CONFIG_DEPLOYURL_PREPROD/$IMAGE_VERSION/
+    - sed -i "s@\$NPM_URL@$NPM_URL@g" .npmrcs/ci
+    - sed -i "s@\$NODE_SASS_URL@$NODE_SASS_URL@g" .npmrcs/ci
+    - sed -i "s@\$NPM_AUTH@$NPM_AUTH@g" .npmrcs/ci
+    - export NPMRC_STORE=.npmrcs
+    - export NPMRC=.npmrc
+    - npmrc ci
+    - npm run bootstrap
+    - GAIA_COMMIT_INFO=$IMAGE_VERSION npm run build:all
+
+    - IMAGE=$REGISTRY_URL/$HARBOR_GROUP_NAME-release-$BranchLabel/$APP_NAME:$IMAGE_VERSION
+    - ./buildctl --addr tcp://10.99.253.223:1234 build --frontend dockerfile.v0 --local context=. --local dockerfile=./ --output type=image,registry.insecure=true,name=$IMAGE,push=true --allow security.insecure --opt filename=Dockerfile --opt platform=$PLATFORM
+
+  only:
+    - /^release\/(|cube|edge)\d+\.\d+\.\d+$/
+    - /^release\/(|cube|edge)\d+\.\d+\.\d+\.\d+$/
+  tags:
+    - k8s-frontend
+
+# deploy-dev not need here, because default image path of dev is ok for ci/cd.
+deploy-release:
+  stage: deploy
+  # interruptible: true
+  variables:
+    GIT_STRATEGY: none
+  script:
+    - IMAGE=$REGISTRY_URL/$HARBOR_GROUP_NAME-release-$BranchLabel/$APP_NAME:$IMAGE_VERSION
+    - CD_IMAGE=$REGISTRY_URL/$HARBOR_GROUP_NAME-release/$APP_NAME:$IMAGE_VERSION
+    - echo $IMAGE
+    - docker pull $IMAGE
+    - docker tag $IMAGE $CD_IMAGE
+    - docker push $CD_IMAGE
+  only:
+    - /^release\/\d+\.\d+\.\d+$/
+    - /^release\/\d+\.\d+\.\d+\.\d+$/
+  tags:
+    - k8s-frontend

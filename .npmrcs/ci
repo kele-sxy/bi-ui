@@ -1,0 +1,5 @@
+registry=$NPM_URL
+sass_binary_site=$NODE_SASS_URL
+phantomjs_cdnurl=https://npm.taobao.org/mirrors/phantomjs/
+always-auth=true
+_auth=$NPM_AUTH
